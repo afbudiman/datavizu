@@ -18,6 +18,9 @@ import textwrap
 import pandas as pd
 import pydeck as pdk
 from utils import show_code
+import plotly.express as px
+import json
+import plotly.graph_objects as go
 
 
 from urllib.error import URLError
@@ -104,16 +107,85 @@ def mapping_demo():
             % e.reason
         )
 
+    df = pd.read_csv('Data/Alfamart_di_makassar.csv')
+    # df = pd.DataFrame(
+    # np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
+    # columns=['lat', 'lon'])
+
+    ICON_URL = "https://upload.wikimedia.org/wikipedia/commons/c/c4/Projet_bi%C3%A8re_logo_v2.png"
+
+    icon_data = {
+    # Icon from Wikimedia, used the Creative Commons Attribution-Share Alike 3.0
+    # Unported, 2.5 Generic, 2.0 Generic and 1.0 Generic licenses
+    "url": ICON_URL,
+    "width": 242,
+    "height": 242,
+    "anchorY": 242,
+    }
+
+    df["icon_data"] = None
+    for i in df.index:
+        df["icon_data"][i] = icon_data
+
+    st.pydeck_chart(pdk.Deck(
+        map_style='mapbox://styles/mapbox/light-v9',
+        initial_view_state=pdk.ViewState(
+            latitude=-5.1477,
+            longitude=119.4327,
+            zoom=11,
+            pitch=50,
+        ),
+        layers=[
+            # pdk.Layer(
+            #     'HexagonLayer',
+            #     data=df,
+            #     get_position='[lon, lat]',
+            #     radius=200,
+            #     elevation_scale=4,
+            #     elevation_range=[0, 1000],
+            #     pickable=True,
+            #     extruded=True,
+            # ),
+            pdk.Layer(
+                'IconLayer',
+                data=df,
+                get_icon='icon_data',
+                get_size=4,
+                size_scale=15,
+                get_position='[lng, lat]',
+                pickable=True,
+                # get_color='[200, 30, 0, 160]',
+                # get_radius=200,
+            ),
+        ],
+    ))
+
+    df1 = pd.read_csv('data/data_chloropleth.csv').drop('Unnamed: 0', axis=1)
+    geojson_id = json.load(open('data/geo_IDN.json'))
+
+    fig3 = px.choropleth(df1, geojson=geojson_id, color="Rate",
+                        locations="Province", featureidkey="properties.NAME_1",
+    )
+    fig3.update_geos(fitbounds="locations", visible=False, bgcolor='#EEEEEE')
+    fig3.update_layout(title='Indonesia Poverty Rate', title_y=0.95, margin={"r":0,"t":0,"l":0,"b":0}, paper_bgcolor='#EEEEEE',
+                       legend_orientation='h')
+    fig3.update_coloraxes(colorbar_orientation='h', colorbar_y=0.04, colorbar_len=0.5, colorbar_thickness=10)
+    fig3.update_traces(colorbar_orientation='h')
+    st.plotly_chart(fig3, use_container_width=True, config={
+        'displayModeBar': False
+    })
+
+
 
 st.set_page_config(page_title="Mapping Demo", page_icon="🌍")
 st.markdown("# Mapping Demo")
 st.sidebar.header("Mapping Demo")
-st.write(
-    """This demo shows how to use
-[`st.pydeck_chart`](https://docs.streamlit.io/library/api-reference/charts/st.pydeck_chart)
-to display geospatial data."""
-)
+# st.write(
+#     """This demo shows how to use
+# [`st.pydeck_chart`](https://docs.streamlit.io/library/api-reference/charts/st.pydeck_chart)
+# to display geospatial data."""
+# )
 
 mapping_demo()
 
-show_code(mapping_demo)
+# show_code(mapping_demo)
