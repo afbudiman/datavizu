@@ -142,22 +142,34 @@ def dashboard():
         })
 
 
-    df1 = pd.read_csv('data/data_chloropleth.csv').drop('Unnamed: 0', axis=1)
-    geojson_id = json.load(open('data/geo_IDN.json'))
+    df = px.data.election()
+    geojson = px.data.election_geojson()
 
-    fig3 = px.choropleth(df1, geojson=geojson_id, color="Rate",
-                        locations="Province", featureidkey="properties.NAME_1",
-    )
-    fig3.update_geos(fitbounds="locations", visible=False, bgcolor='#EEEEEE')
-    fig3.update_layout(title='Indonesia Poverty Rate', title_y=0.95, margin={"r":0,"t":0,"l":0,"b":0}, paper_bgcolor='#EEEEEE',
-                       legend_orientation='h')
-    fig3.update_coloraxes(colorbar_orientation='h', colorbar_y=0.04, colorbar_len=0.5, colorbar_thickness=10)
-    fig3.update_traces(colorbar_orientation='h')
-    st.plotly_chart(fig3, use_container_width=True, config={
+    fig6 = px.choropleth(df, geojson=geojson, color="Bergeron",
+                        locations="district", featureidkey="properties.district",
+                        projection="mercator"
+                    )
+    fig6.update_geos(fitbounds="locations", visible=False)
+    fig6.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    st.plotly_chart(fig6, use_container_width=True, config={
         'displayModeBar': False
     })
 
-    
+
+    # df1 = pd.read_csv('data/data_chloropleth.csv').drop('Unnamed: 0', axis=1)
+    # geojson_id = json.load(open('data/geo_IDN.json'))
+
+    # fig3 = px.choropleth(df1, geojson=geojson_id, color="Rate",
+    #                     locations="Province", featureidkey="properties.NAME_1",
+    # )
+    # fig3.update_geos(fitbounds="locations", visible=False, bgcolor='#EEEEEE')
+    # fig3.update_layout(title='Indonesia Poverty Rate', title_y=0.95, margin={"r":0,"t":0,"l":0,"b":0}, paper_bgcolor='#EEEEEE',
+    #                    legend_orientation='h')
+    # fig3.update_coloraxes(colorbar_orientation='h', colorbar_y=0.04, colorbar_len=0.5, colorbar_thickness=10)
+    # fig3.update_traces(colorbar_orientation='h')
+    # st.plotly_chart(fig3, use_container_width=True, config={
+    #     'displayModeBar': False
+    # })
 
 
 # def plotting_demo():
