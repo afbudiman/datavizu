@@ -159,7 +159,9 @@ def dashboard():
 
     fig6.update_layout(
         title_text='2014 Global GDP',
+        paper_bgcolor='#EEEEEE',
         geo=dict(
+            bgcolor='#EEEEEE',
             showframe=False,
             showcoastlines=False,
             projection_type='equirectangular'
