@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from turtle import title
 import streamlit as st
 import inspect
 import textwrap
@@ -159,7 +160,9 @@ def dashboard():
 
     fig6.update_layout(
         title_text='2014 Global GDP',
+        title_y=0.94,
         paper_bgcolor='#EEEEEE',
+        margin={"r":10,"t":50,"l":10,"b":10,"pad":0},
         geo=dict(
             bgcolor='#EEEEEE',
             showframe=False,
