@@ -107,7 +107,7 @@ def mapping_demo():
             % e.reason
         )
 
-    df = pd.read_csv('Data/Alfamart_di_makassar.csv')
+    df = pd.read_csv('./data/Alfamart_di_makassar.csv')
     # df = pd.DataFrame(
     # np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
     # columns=['lat', 'lon'])
