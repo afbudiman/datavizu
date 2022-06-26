@@ -142,15 +142,38 @@ def dashboard():
         })
 
 
-    df = px.data.election()
-    geojson = px.data.election_geojson()
+    df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
 
-    fig6 = px.choropleth(df, geojson=geojson, color="Bergeron",
-                        locations="district", featureidkey="properties.district",
-                        projection="mercator"
-                    )
-    fig6.update_geos(fitbounds="locations", visible=False)
-    fig6.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    fig6 = go.Figure(data=go.Choropleth(
+        locations = df['CODE'],
+        z = df['GDP (BILLIONS)'],
+        text = df['COUNTRY'],
+        colorscale = 'Blues',
+        autocolorscale=False,
+        reversescale=True,
+        marker_line_color='darkgray',
+        marker_line_width=0.5,
+        colorbar_tickprefix = '$',
+        colorbar_title = 'GDP<br>Billions US$',
+    ))
+
+    fig6.update_layout(
+        title_text='2014 Global GDP',
+        geo=dict(
+            showframe=False,
+            showcoastlines=False,
+            projection_type='equirectangular'
+        ),
+        annotations = [dict(
+            x=0.55,
+            y=0.1,
+            xref='paper',
+            yref='paper',
+            text='Source: <a href="https://www.cia.gov/library/publications/the-world-factbook/fields/2195.html">\
+                CIA World Factbook</a>',
+            showarrow = False
+        )]
+    )
     st.plotly_chart(fig6, use_container_width=True, config={
         'displayModeBar': False
     })
