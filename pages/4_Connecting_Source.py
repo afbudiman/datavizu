@@ -1,39 +1,45 @@
-import streamlit as st
+import streamlit as st 
+from pandas import DataFrame
+from gspread_pandas import Spread,Client
 from google.oauth2 import service_account
-from gsheetsdb import connect
-import time
+import pandas as pd
 
-# Create a connection object.
+st.set_page_config(page_title="Connecting Demo", page_icon=":link:")
+
+scope = ['https://www.googleapis.com/auth/spreadsheets',
+         'https://www.googleapis.com/auth/drive']
+
 credentials = service_account.Credentials.from_service_account_info(
-    st.secrets["gcp_service_account"],
-    scopes=[
-        "https://www.googleapis.com/auth/spreadsheets",
-    ],
-)
-conn = connect(credentials=credentials)
+                st.secrets["gcp_service_account"], scopes=scope)
+client = Client(scope=scope, creds=credentials)
+spreadsheetname = "streamlit"
+spread = Spread(spreadsheetname, client=client)
 
-# Perform SQL query on the Google Sheet.
-# Uses st.cache to only rerun when the query changes or after 10 min.
-@st.cache(ttl=10)
-def run_query(query):
-    rows = conn.execute(query, headers=1)
-    rows = rows.fetchall()
-    return rows
+sh = client.open(spreadsheetname)
+# worksheet_list = sh.worksheets()
 
-sheet_url = st.secrets["private_gsheets_url"]
-rows = run_query(f'SELECT * FROM "{sheet_url}"')
+worksheet = sh.worksheet('Sheet1')
 
-st.dataframe(rows)
-# st.experimental_rerun()
+st.header('Connecting Streamlit Application to Data Source')
 
-# table = st.empty()
-# while True:
-#      # update every 5 mins
-#      table.dataframe(rows)
-#      time.sleep(100)  
+st.markdown(
+    '''The sample spreadsheet can be found [here](https://docs.google.com/spreadsheets/d/1pNlChcOvhuFRCG_iAETraJRf0s1M4uMpaX6J1uNRqpg)
+''')
 
-# # Print results.
-# area_1 = st.empty()
-# for row in rows:
-#     area_1.write(f"{row.name} has a :{row.pet}:")
-#     time.sleep(1)
+df = DataFrame(worksheet.get_all_records())
+table = st.table(df)
+
+st.sidebar.header('Update Data')
+
+with st.sidebar.form(key='my_form', clear_on_submit=True):
+    name = st.text_input(label='Name')
+    pet = st.text_input(label='Pet')
+    add = st.form_submit_button(label='add')
+
+    if add:
+        row = []
+        row.append([name, pet])
+        new_df = pd.DataFrame(row, columns=['name','pet'])
+        table.add_rows(new_df)
+        df1 = pd.concat([df, new_df])
+        spread.df_to_sheet(df1, sheet='Sheet1', index = False)
